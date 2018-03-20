@@ -21,7 +21,8 @@ router.post('/', isVendor, (req, res, next) => {
   Shuttle.create({
       ...data,
       departure: new Date(data.departure),
-      vendorId: mongoose.Types.ObjectId(data.vendorId)
+      vendorId: mongoose.Types.ObjectId(data.vendorId),
+      carId: mongoose.Types.ObjectId(data.carId)
     },
     (err, shuttle) => {
       if (err) {
@@ -29,7 +30,7 @@ router.post('/', isVendor, (req, res, next) => {
       } else {
         Vendor.findOneAndUpdate({
             _id: shuttle.vendorId,
-            riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) }
+            riderIds: { $in: [mongoose.Types.ObjectId(req.jwtData.id)] }
           }, {
             $push: {
               shuttleIds: shuttle._id
@@ -78,8 +79,8 @@ router.put('/:id', isVendor, (req, res, next) => {
   }
   const update = req.body;
   Vendor.findOne({
-      riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) },
-      shuttleIds: { $in: mongoose.Types.ObjectId(id) }
+      riderIds: { $in: [mongoose.Types.ObjectId(req.jwtData.id)] },
+      shuttleIds: { $in: [mongoose.Types.ObjectId(id)] }
     },
     (err, vendor) => {
       if (err) {
@@ -110,10 +111,13 @@ router.delete('/:id', isVendor, (req, res, next) => {
     res.status(500).send({ error: { name: 'InvalidParams', message: 'Id missing' } });
     return;
   }
-  Vendor.findOne({
-      riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) },
-      shuttleIds: { $in: mongoose.Types.ObjectId(id) }
-    }, (err, vendor) => {
+  Vendor.findOneAndUpdate({
+      riderIds: { $in: [mongoose.Types.ObjectId(req.jwtData.id)] },
+      shuttleIds: { $in: [mongoose.Types.ObjectId(id)] }
+    }, { 
+      $pull: { shuttleIds: mongoose.Types.ObjectId(id) }
+    },
+    (err, vendor) => {
       if (err) {
         res.status(500).send({ error: err });
       } else {

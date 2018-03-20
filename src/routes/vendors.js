@@ -129,8 +129,8 @@ router.get('/:id/shuttles', (req, res, next) => {
         res.sendStatus(404);
         return;
       }
-      const shuttleIds = vendor.shuttleIds.map(s => mongoose.Types.ObjectId(s));;
-      Vendor.find({ _id: { $in: shuttleIds } }, (err, shuttles) => {
+      const shuttleIds = vendor.shuttleIds.map(s => mongoose.Types.ObjectId(s));
+      Shuttle.find({ _id: { $in: shuttleIds } }, (err, shuttles) => {
         if (err) {
           res.status(500).send({ error: err });
         } else {

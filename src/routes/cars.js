@@ -6,7 +6,7 @@ const Vendor = require('../models/vendor');
 const isVendor = require('../middleware/roles').isVendor;
 
 router.get('/', isVendor, (req, res, next) => {
-  Vendor.findOne({ riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) }}, (err, vendor) => {
+  Vendor.findOne({ riderIds: { $in: [mongoose.Types.ObjectId(req.jwtData.id)] }}, (err, vendor) => {
     if (err) {
       res.status(500).send({ error: err });
     } else {
@@ -39,8 +39,8 @@ router.post('/', isVendor, (req, res, next) => {
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      Vendor.findOne(
-        { riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) } },
+      Vendor.findOneAndUpdate(
+        { riderIds: { $in: [mongoose.Types.ObjectId(req.jwtData.id)] } },
         { $push: { carIds: mongoose.Types.ObjectId(car._id) } }, (err, vendor) => {
           if (err) {
             res.status(500).send({ error: err });
@@ -78,8 +78,8 @@ router.put('/:id', isVendor, (req, res, next) => {
     return;
   }
   Vendor.findOne({
-      riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) },
-      carIds: { $in: mongoose.Types.ObjectId(id) }
+      riderIds: { $in: [mongoose.Types.ObjectId(req.jwtData.id)] },
+      carIds: { $in: [mongoose.Types.ObjectId(id)] }
     },
     (err, vendor) => {
       if (err) {
@@ -107,10 +107,13 @@ router.delete('/:id', isVendor, (req, res, next) => {
     res.status(500).send({ error: { name: 'InvalidParams', message: 'Id missing' } });
     return;
   }
-  Vendor.findOne({
-      riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) },
-      carIds: { $in: mongoose.Types.ObjectId(id) }
-    }, (err, vendor) => {
+  Vendor.findOneAndUpdate({
+      riderIds: { $in: [mongoose.Types.ObjectId(req.jwtData.id)] },
+      carIds: { $in: [mongoose.Types.ObjectId(id)] }
+    }, { 
+      $pull: { carIds: mongoose.Types.ObjectId(id) }
+    },
+    (err, vendor) => {
       if (err) {
         res.status(500).send({ error: err });
       } else {

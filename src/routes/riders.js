@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 const Rider = require('../models/rider');
+const Vendor = require('../models/vendor');
 const Shuttle = require('../models/shuttle');
 
 router.get('/:id', (req, res, next) => {
@@ -18,7 +19,21 @@ router.get('/:id', (req, res, next) => {
         res.sendStatus(404);
         return;
       }
-      res.json(rider);
+      if (rider.roles.indexOf('vendor') !== -1) {
+        Vendor.findOne({ riderIds:{ $in: [mongoose.Types.ObjectId(id)] } }, (err, vendor) => {
+          if (err) {
+            res.status(500).send({ error: err });
+          } else {
+            if (!vendor) {
+              res.sendStatus(404);
+              return;
+            }
+            res.json({ ...(rider.toObject()), vendorId: vendor._id });
+          }
+        });
+      } else {
+        res.json(rider);
+      }
     }
   });
 });
