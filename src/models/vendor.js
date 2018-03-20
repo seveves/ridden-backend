@@ -12,7 +12,7 @@ const VendorSchema = new Schema({
     long: Number
   },
   mail: { type: String, unique: true, required: true },
-  riderId: { type: Schema.Types.ObjectId, required: true },
+  riderIds: [{ type: Schema.Types.ObjectId, required: true }],
   shuttleIds: [Schema.Types.ObjectId],
   carIds: [Schema.Types.ObjectId],
   createdAt: { type: Date, default: Date.now }

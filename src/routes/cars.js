@@ -6,7 +6,7 @@ const Vendor = require('../models/vendor');
 const isVendor = require('../middleware/roles').isVendor;
 
 router.get('/', isVendor, (req, res, next) => {
-  Vendor.findOne({ riderId: mongoose.Types.ObjectId(req.jwtData.id) }, (err, vendor) => {
+  Vendor.findOne({ riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) }}, (err, vendor) => {
     if (err) {
       res.status(500).send({ error: err });
     } else {
@@ -39,16 +39,18 @@ router.post('/', isVendor, (req, res, next) => {
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      Vendor.findOne({ riderId: mongoose.Types.ObjectId(req.jwtData.id) }, { $push: { carIds: mongoose.Types.ObjectId(car._id) } }, (err, vendor) => {
-        if (err) {
-          res.status(500).send({ error: err });
-        } else {
-          if (!vendor) {
-            res.sendStatus(404);
-            return;
+      Vendor.findOne(
+        { riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) } },
+        { $push: { carIds: mongoose.Types.ObjectId(car._id) } }, (err, vendor) => {
+          if (err) {
+            res.status(500).send({ error: err });
+          } else {
+            if (!vendor) {
+              res.sendStatus(404);
+              return;
+            }
+            res.json(car);
           }
-          res.json(car);
-        }
       });
     }
   });
@@ -76,7 +78,7 @@ router.put('/:id', isVendor, (req, res, next) => {
     return;
   }
   Vendor.findOne({
-      riderId: mongoose.Types.ObjectId(req.jwtData.id),
+      riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) },
       carIds: { $in: mongoose.Types.ObjectId(id) }
     },
     (err, vendor) => {
@@ -106,7 +108,7 @@ router.delete('/:id', isVendor, (req, res, next) => {
     return;
   }
   Vendor.findOne({
-      riderId: mongoose.Types.ObjectId(req.jwtData.id),
+      riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) },
       carIds: { $in: mongoose.Types.ObjectId(id) }
     }, (err, vendor) => {
       if (err) {

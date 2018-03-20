@@ -56,7 +56,7 @@ router.put('/:id', roles.isVendor, (req, res, next) => {
         res.sendStatus(404);
         return;
       }
-      if (mongoose.Types.ObjectId(req.jwtData.id).equals(vendor.riderId)) {
+      if (vendor.riderIds.some(riderId => mongoose.Types.ObjectId(req.jwtData.id).equals(vendor.riderId))) {
         const update = req.body;
         Vendor.findByIdAndUpdate(id, update, { new: true }, (err, doc) => {
           if (err) {
@@ -82,7 +82,7 @@ router.delete('/:id', roles.isVendor, (req, res, next) => {
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      if (mongoose.Types.ObjectId(req.jwtData.id).equals(vendor.riderId)) {
+      if (vendor.riderIds.some(riderId => mongoose.Types.ObjectId(req.jwtData.id).equals(vendor.riderId))) {
         Vendor.findByIdAndRemove(id, (err, doc) => {
           if (err) {
             res.status(500).send({ error: err });

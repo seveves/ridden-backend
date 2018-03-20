@@ -29,7 +29,7 @@ router.post('/', isVendor, (req, res, next) => {
       } else {
         Vendor.findOneAndUpdate({
             _id: shuttle.vendorId,
-            riderId: mongoose.Types.ObjectId(req.jwtData.id)
+            riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) }
           }, {
             $push: {
               shuttleIds: shuttle._id
@@ -78,7 +78,7 @@ router.put('/:id', isVendor, (req, res, next) => {
   }
   const update = req.body;
   Vendor.findOne({
-      riderId: mongoose.Types.ObjectId(req.jwtData.id),
+      riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) },
       shuttleIds: { $in: mongoose.Types.ObjectId(id) }
     },
     (err, vendor) => {
@@ -111,7 +111,7 @@ router.delete('/:id', isVendor, (req, res, next) => {
     return;
   }
   Vendor.findOne({
-      riderId: mongoose.Types.ObjectId(req.jwtData.id),
+      riderIds: { $in: mongoose.Types.ObjectId(req.jwtData.id) },
       shuttleIds: { $in: mongoose.Types.ObjectId(id) }
     }, (err, vendor) => {
       if (err) {
