@@ -6,9 +6,9 @@ const methodOverride = require('method-override');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const morgan = require('morgan');
 const auth = require('./config/auth');
 const appConfig = require('./config/app');
-const Rider = require('./models/rider');
 
 const app = express();
 app.options('*', cors())
@@ -17,6 +17,7 @@ app.use(cors());
 auth(passport);
 app.use(passport.initialize());
 
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -41,19 +42,6 @@ const db = require('./database/db');
 db.on('open', () => {
   const port = process.env.PORT || 3000
   app.listen(port, () => {
-    Rider.findOneOrCreate({
-      name: 'admin',
-      mail: 'admin@ridden.io',
-      roles: ['admin']
-    }, (err, rider) => {
-      if (err) {
-        console.log(err);
-      } else {
-        const payload = { id: rider._id, roles: rider.roles };
-        const jwtToken = jwt.sign({ data: payload }, appConfig.secret, { expiresIn: '24h' });
-        console.log(`admin token: ${jwtToken}`);
-      }
-    });
     console.log(`Ridden backend running on port ${port}`);
   });
 });

@@ -17,6 +17,7 @@
     "method-override": "^2.3.10",
     "mongodb": "^3.0.4",
     "mongoose": "^5.0.10",
+    "morgan": "^1.9.0",
     "passport": "^0.4.0",
     "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^4.0.0"
@@ -27,8 +28,12 @@
   },
   "now": {
     "env": {
-      "MONGO_USER": "@mongouser",
-      "MONGO_PW": "@mongopw",
+      "MONGODB_URI": "@rdn-mlab-uri",
+      "JWT_KEY": "@rdn-jwt",
+      "GOOGLE_CLI_ID": "@rdn-google-id",
+      "GOOGLE_CLI_KEY": "@rdn-google-key",
+      "GOGGLE_CB": "https://ridden-backend.now.sh/auth/google/callback",
+      "FRONTEND": "https://ridden.now.sh",
       "NODE_ENV": "production"
     }
   }
