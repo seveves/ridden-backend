@@ -1,6 +1,6 @@
 {
   "name": "ridden-backend",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "ridden.io backend",
   "main": "index.js",
   "scripts": {

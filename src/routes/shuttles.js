@@ -146,14 +146,15 @@ router.post('/:id/hopon', (req, res, next) => {
     res.status(500).send({ error: { name: 'InvalidParams', message: 'Id missing' } });
     return;
   }
-  const bookingAmount = req.query.amount;
+  const bookingAmount = req.body.amount;
   if (!bookingAmount || bookingAmount < 1) {
     res.status(500).send({ error: { name: 'InvalidParams', message: 'Booking amount missing' } });
     return;
   }
   const riderId = req.jwtData.id;
   Shuttle.findByIdAndUpdate(
-    shuttleId, {
+    shuttleId,
+    {
       $push: {
         bookings: {
           riderId: mongoose.Types.ObjectId(riderId),
@@ -169,7 +170,7 @@ router.post('/:id/hopon', (req, res, next) => {
         Rider.findByIdAndUpdate(
           riderId,
           {
-            $addToSet: { shuttleIds: mongoose.Types.ObjectId(shuttle._id) }
+            $addToSet: { shuttleIds: shuttle._id }
           },
           (err, rider) => {
             if (err) {
@@ -206,7 +207,7 @@ router.post('/:id/hopoff', (req, res, next) => {
         Rider.findByIdAndUpdate(
           riderId,
           {
-            $addToSet: { shuttleIds: mongoose.Types.ObjectId(shuttle._id) }
+            $pull: { shuttleIds: shuttle._id }
           },
           (err, rider) => {
             if (err) {
