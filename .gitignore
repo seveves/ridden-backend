@@ -110,4 +110,4 @@ $RECYCLE.BIN/
 # Others
 lib/
 data/
-src/config/app.js
+src/config/app.local.js

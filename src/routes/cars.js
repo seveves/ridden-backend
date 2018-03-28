@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const Car = require('../models/car');
 const Vendor = require('../models/vendor');
+const Shuttle = require('../models/shuttle');
 const isVendor = require('../middleware/roles').isVendor;
 
 router.get('/', isVendor, (req, res, next) => {
@@ -62,11 +63,18 @@ router.get('/:id', (req, res, next) => {
     res.status(500).send({ error: { name: 'InvalidParams', message: 'Id missing' } });
     return;
   }
-  Car.findById(id, (err, car) => {
+  Shuttle.find((err, shuttles) => {
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      res.json(car);
+      Car.findById(id, (err, car) => {
+        if (err) {
+          res.status(500).send({ error: err });
+        } else {
+          const used = shuttles.some(s => s.carId.equals(car._id));
+          res.json({ ...(car.toObject()), used });
+        }
+      });
     }
   });
 });

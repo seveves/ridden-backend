@@ -27,6 +27,7 @@
     "npm": ">= 5.0.0"
   },
   "now": {
+    "alias": "ridden-backend",
     "env": {
       "MONGODB_URI": "@rdn-mlab-uri",
       "JWT_KEY": "@rdn-jwt",
