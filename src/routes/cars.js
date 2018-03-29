@@ -15,15 +15,28 @@ router.get('/', isVendor, (req, res, next) => {
         res.sendStatus(404);
         return;
       }
-      Car.find({
-        _id: {
-          $in: vendor.carIds
-        }
-      }, (err, cars) => {
+      Shuttle.find((err, shuttles) => {
         if (err) {
           res.status(500).send({ error: err });
         } else {
-          res.json(cars);
+          Car.find({
+            _id: {
+              $in: vendor.carIds
+            }
+          }, (err, cars) => {
+            if (err) {
+              res.status(500).send({ error: err });
+            } else {
+              const mappedCars =
+                cars
+                  .map(c => c.toObject())
+                  .map(c => ({
+                    ...c,
+                    used: shuttles.some(s => s.carId.equals(mongoose.Types.ObjectId(c._id)))
+                  }));
+              res.json(mappedCars);
+            }
+          });
         }
       });
     }
