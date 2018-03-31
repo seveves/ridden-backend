@@ -20,7 +20,9 @@
     "morgan": "^1.9.0",
     "passport": "^0.4.0",
     "passport-google-oauth": "^1.0.0",
-    "passport-jwt": "^4.0.0"
+    "passport-jwt": "^4.0.0",
+    "winston": "2.4.1",
+    "winston-papertrail": "^1.0.5"
   },
   "engines": {
     "node": ">= 8.0.0",
@@ -33,6 +35,8 @@
       "JWT_KEY": "@rdn-jwt",
       "GOOGLE_CLI_ID": "@rdn-google-id",
       "GOOGLE_CLI_KEY": "@rdn-google-key",
+      "PT_URL": "@rdn-pt-url",
+      "PT_PORT": "@rdn-pt-port",
       "GOGGLE_CB": "https://ridden-backend.now.sh/auth/google/callback",
       "FRONTEND": "https://ridden.now.sh",
       "NODE_ENV": "production"

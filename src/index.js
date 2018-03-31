@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
 const auth = require('./config/auth');
 const appConfig = require('./config/app');
+const logger = require('./logger');
 
 const app = express();
 app.options('*', cors())
@@ -17,12 +18,15 @@ app.use(cors());
 auth(passport);
 app.use(passport.initialize());
 
-app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+const morganFormat = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
+const morganOpts = process.env.NODE_ENV === 'production'
+  ? { skip: function (req, res) { return res.statusCode < 400 } }
+  : {};
+app.use(morgan(morganFormat, morganOpts));
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(methodOverride());
-app.use(errorHandler);
 
 const ROUTE_PREFIX = '/api/v1';
 
@@ -37,18 +41,24 @@ app.use(`${ROUTE_PREFIX}/cars`, isAuthenticated, require('./routes/cars'));
 app.use(`${ROUTE_PREFIX}/riders`, isAuthenticated, require('./routes/riders'));
 app.use(`${ROUTE_PREFIX}/vendors`, isAuthenticated, require('./routes/vendors'));
 app.use(`${ROUTE_PREFIX}/shuttles`, isAuthenticated, require('./routes/shuttles'));
+app.use(errorHandler);
 
 const db = require('./database/db');
 db.on('open', () => {
   const port = process.env.PORT || 3000
   app.listen(port, () => {
-    console.log(`Ridden backend running on port ${port}`);
+    logger.log('info', `Ridden backend running on port ${port}`);
   });
 });
 
 function errorHandler(err, req, res, next) {
-  res.status(500);
-  res.render('error', { error: err });
+  logger.log('error', 'Unhandled error occurred', { error: err, request: req });
+  if (req.xhr) {
+    res.status(500).send({ name: 'UnknownError', message: 'Unknown error occurred.' });
+  } else {
+    res.status(500);
+    res.render('error', { error: err });
+  }
 }
 
 function isAuthenticated(req, res, next) {

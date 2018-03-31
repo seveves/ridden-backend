@@ -4,5 +4,7 @@ module.exports = {
   clientKey: process.env.GOOGLE_CLI_KEY || 'supercoolcatfish',
   clientCallback: process.env.GOGGLE_CB || 'http://localhost:3000/auth/google/callback',
   secret: process.env.JWT_KEY || 'supercoolcatfish',
-  frontend: process.env.FRONTEND || 'http://localhost:8080'
+  frontend: process.env.FRONTEND || 'http://localhost:8080',
+  ptUrl: process.env.PT_URL,
+  ptPort: process.env.PT_PORT
 };

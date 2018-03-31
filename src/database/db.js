@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const appConfig = require('../config/app.js');
+const logger = require('../logger');
 
 process.on('SIGINT', function() {  
   mongoose.connection.close(function () { 
-    console.log('Mongoose default connection disconnected through app termination');
+    logger.info('Mongoose default connection disconnected through app termination');
     process.exit(0); 
   }); 
 });
