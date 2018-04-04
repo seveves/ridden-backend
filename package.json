@@ -31,6 +31,12 @@
   },
   "now": {
     "alias": "ridden-backend",
+    "scale": {
+      "bru1": {
+        "min": 1,
+        "max": 10
+      }
+    },
     "env": {
       "MONGODB_URI": "@rdn-mlab-uri",
       "JWT_KEY": "@rdn-jwt",
