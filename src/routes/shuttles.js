@@ -1,4 +1,5 @@
 const express = require('express');
+const ics = require('ics');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Shuttle = require('../models/shuttle');
@@ -138,6 +139,80 @@ router.delete('/:id', isVendor, (req, res, next) => {
         });
       }
     });
+});
+
+router.get('/:id/ical', (req, res, next) => {
+  const shuttleId = req.params.id;
+  if (!shuttleId) {
+    res.status(500).send({ error: { name: 'InvalidParams', message: 'Id missing' } });
+    return;
+  }
+  Shuttle.findById(shuttleId, (err, shuttle) => {
+    if (err || !shuttle) {
+      res.status(err ? 500 : 404).send({ error: err || 'Shuttle not found' });
+    } else {
+      const departure = new Date(shuttle.departure);
+      const alarm1 = new Date(
+        departure.getFullYear(),
+        departure.getMonth(),
+        departure.getDate() - 1,
+        departure.getHours(),
+        departure.getMinutes()
+      );
+      const alarm2 = new Date(
+        departure.getFullYear(),
+        departure.getMonth(),
+        departure.getDate() ,
+        departure.getHours() - 1,
+        departure.getMinutes()
+      );
+      const event = {
+        start: [
+          departure.getFullYear(),
+          departure.getMonth() + 1, 
+          departure.getDate(),
+          departure.getHours(),
+          departure.getMinutes()
+        ],
+        duration: { hours: shuttle.duration, minutes: 0 },
+        title: `Ridden.io: ${shuttle.title}`,
+        description: shuttle.description,
+        location: shuttle.location.name,
+        url: `http://ridden.now.sh/shuttle-details/${shuttle._id}`,
+        geo: { lat: shuttle.location.lat, lon: shuttle.location.long },
+        alarms: [
+          {
+            action: 'display',
+            trigger: [
+              alarm1.getFullYear(),
+              alarm1.getMonth() + 1, 
+              alarm1.getDate(),
+              alarm1.getHours(),
+              alarm1.getMinutes()
+            ]
+          },
+          {
+            action: 'display',
+            trigger: [
+              alarm2.getFullYear(),
+              alarm2.getMonth() + 1, 
+              alarm2.getDate(),
+              alarm2.getHours(),
+              alarm2.getMinutes()
+            ]
+          }
+        ]
+      };
+      ics.createEvent(event, (err, value) => {
+        if (err) {
+          res.status(500).send({ error: { name: 'CreateEvent', message: 'Unable to create event' } });
+        } else {
+          res.set('Content-Type', 'text/calendar');
+          res.send(value);
+        }
+      });
+    }
+  });
 });
 
 router.post('/:id/hopon', (req, res, next) => {
