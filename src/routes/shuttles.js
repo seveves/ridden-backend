@@ -6,13 +6,31 @@ const Shuttle = require('../models/shuttle');
 const Rider = require('../models/rider');
 const Vendor = require('../models/vendor');
 const isVendor = require('../middleware/roles').isVendor;
+const geo = require('../utils/geo');
 
-router.get('/', (req, res, next) => {    
+router.get('/', (req, res, next) => {
+  let near = null;
+  if (req.query.near) {
+    const nearParams = req.query.near.split(':');
+    const distance = +nearParams[0];
+    const lat = +nearParams[1];
+    const lon = +nearParams[2];
+    near = { distance, lat, lon };
+  }
   Shuttle.find((err, shuttles) => {
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      res.json(shuttles);
+      if (near) {
+        res.json(
+          shuttles.filter(shuttle => near.distance >= geo.getDistanceBetweenInKm(
+            { lat: shuttle.location.lat, lon: shuttle.location.long },
+            { lat: near.lat, lon: near.lon }
+          )
+        ));
+      } else {
+        res.json(shuttles);
+      }
     }
   });
 });
