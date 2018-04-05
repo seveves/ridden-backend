@@ -208,7 +208,7 @@ router.get('/:id/ical', (req, res, next) => {
           res.status(500).send({ error: { name: 'CreateEvent', message: 'Unable to create event' } });
         } else {
           res.set('Content-Type', 'text/calendar');
-          res.send(value);
+          res.send(value.replace(/\r\n/g, '\n'));
         }
       });
     }
